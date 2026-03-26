@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<!-- Desarrollado por Juan C. Martinez jc.martinezhernand(ARROBA)edu.gva.es
+     * Evaluación LOMLOE
+     * Copyright (C) 2024-2026 Juan C. Martínez
+     * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
+     * bajo los términos de la Licencia Pública General Affero de GNU tal como
+     * fue publicada por la Free Software Foundation, ya sea la versión 3 de
+     * la Licencia, o (a su elección) cualquier versión posterior.
+     * Este programa se distribuye con la esperanza de que sea útil, pero SIN
+     * NINGUNA GARANTÍA; sin incluso la garantía implícita de COMERCIALIZACIÓN
+     * o IDONEIDAD PARA UN PROPÓSITO PARTICULAR.
+     * Ver <https://www.gnu.org/licenses/agpl-3.0.html> para más detalles.
+-->
+<head>
+    <meta charset="UTF-8">
+    <title>Evaluación LOMLOE v8.1</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; }
+        .tab-bar { overflow: hidden; background-color: #fff; border-radius: 8px 8px 0 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; }
+        h2 { margin-top: 5px; }
+        .tab-button { background-color: inherit; border: none; outline: none; cursor: pointer; padding: 14px 20px; transition: 0.3s; font-size: 15px; flex-grow: 1; font-weight: 600; color: #555; }
+        .tab-button:hover { background-color: #e0e0e0; }
+        .tab-button.active { background-color: #007bff; color: white; }
+        .tab-content { display: none; padding: 20px; background-color: white; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        thead th { background-color: #007bff; color: white; position: sticky; top: 0; z-index: 2; }
+        .col-fija { position: sticky; left: 0; z-index: 3; background-color: #f8f9fa; border-right: 2px solid #ccc; text-align: left; font-weight: bold; min-width: 180px; }
+
+        .contenedor-ces { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin: 15px 0; }
+        .card-ce { border: 1px solid #e0e0e0; border-radius: 6px; background: #fff; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-ce h5 { margin: 0 0 8px 0; padding-bottom: 5px; border-bottom: 2px solid #007bff; color: #007bff; font-size: 13px; }
+        .grid-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+        .check-item { display: flex; align-items: center; background: #f0f2f5; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: help; }
+
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; color: white; transition: 0.2s; margin: 2px; }
+        .btn-success { background-color: #28a745; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-warning { background-color: #fddf84; color: #333; }
+        .btn-info { background-color: #17a2b8; }
+
+        .input-peso { width: 60px; text-align: center; font-weight: bold; border: 1px solid #007bff; border-radius: 4px; }
+        .badge-ev { background: #17a2b8; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px; cursor: pointer; display: inline-block; }
+
+        .valid-box { padding: 12px; border-radius: 6px; font-weight: bold; margin-top: 15px; text-align: right; }
+        .error { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .span-crit-tabla { cursor: help; text-decoration: underline dotted #aaa; margin-right: 5px; }
+        .logo { display: flex; justify-content: center; margin-bottom: -50px; }
+    </style>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='256' y1='0' x2='256' y2='512' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%2380b3ff'/%3E%3Cstop offset='1' stop-color='%231a5fb4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='81' fill='url(%23a)'/%3E%3Cpath d='M303 33c-1 0-2 1-2 2v188c0 1 1 2 2 2h4c1 0 2-1 2-2V35c0-1-1-2-2-2h-4zM240 34c-11 0-20 9-20 20v140c0 1 1 2 2 2h4c1 0 2-1 2-2V54c0-7 6-13 13-13h61c1 0 2-1 2-2v-4c0-1-1-2-2-2h-60z' fill='%23fff'/%3E%3Crect x='48' y='238' width='416' height='226' rx='56' fill='%23fff'/%3E%3Crect x='139' y='279' width='271' height='27' rx='13' fill='%238ff0a4'/%3E%3Crect x='139' y='334' width='216' height='27' rx='13' fill='%2362a0ea'/%3E%3Crect x='139' y='389' width='155' height='27' rx='13' fill='%2362a0ea'/%3E%3Crect x='72' y='277' width='44' height='44' rx='9' fill='%234e9a06'/%3E%3Cpath d='M82 299l5 5 11-11' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Crect x='72' y='332' width='44' height='44' rx='9' fill='%234e9a06'/%3E%3Cpath d='M82 354l5 5 11-11' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Crect x='72' y='387' width='44' height='44' rx='9' fill='%234e9a06'/%3E%3Cpath d='M82 409l5 5 11-11' fill='none' stroke='%23fff' stroke-width='4'/%3E%3C/svg%3E">
+</head>
+<body>
+    <div class="logo">
+        <svg
+            width="100"
+            height="100"
+            viewBox="0 0 1000 1000"
+            version="1.1"
+            id="svg9"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:svg="http://www.w3.org/2000/svg">
+            <defs
+                id="defs2">
+                <linearGradient
+                id="azulDegradado"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%">
+                <stop
+                    offset="0"
+                    style="stop-color:#75bbea;stop-opacity:1;"
+                    id="stop1" />
+                <stop
+                    offset="100%"
+                    style="stop-color:#1B55A3;stop-opacity:1"
+                    id="stop2" />
+                </linearGradient>
+            </defs>
+            <rect
+                x="20"
+                y="20"
+                width="472"
+                height="472"
+                rx="60"
+                fill="url(#azulDegradado)"
+                id="rect2" />
+            <text
+                x="256"
+                y="210"
+                font-family="Arial, Helvetica, sans-serif"
+                font-weight="bold"
+                font-size="200"
+                fill="white"
+                text-anchor="middle"
+                id="text2">JC</text>
+            <rect
+                x="50"
+                y="240"
+                width="412"
+                height="200"
+                rx="40"
+                fill="white"
+                id="rect3" />
+            <rect
+                x="85"
+                y="275"
+                width="45"
+                height="45"
+                rx="8"
+                fill="#78C25D"
+                id="rect4"
+                style="stroke:#388536;stroke-opacity:1;stroke-width:3;stroke-dasharray:none" />
+            <path
+                d="M95 298 l10 10 l20 -20"
+                stroke="white"
+                stroke-width="6"
+                fill="none"
+                stroke-linecap="round"
+                id="path4" />
+            <rect
+                x="150"
+                y="285"
+                width="260"
+                height="25"
+                rx="12.5"
+                fill="#92D050"
+                id="rect5" />
+            <rect
+                x="85"
+                y="330"
+                width="45"
+                height="45"
+                rx="8"
+                fill="#78C25D"
+                id="rect6"
+                style="stroke:#388536;stroke-opacity:1;stroke-width:3;stroke-dasharray:none" />
+            <path
+                d="M95 353 l10 10 l20 -20"
+                stroke="white"
+                stroke-width="6"
+                fill="none"
+                stroke-linecap="round"
+                id="path6" />
+            <rect
+                x="150"
+                y="340"
+                width="200"
+                height="25"
+                rx="12.5"
+                fill="#56B4E9"
+                id="rect7" />
+            <rect
+                x="85"
+                y="385"
+                width="45"
+                height="45"
+                rx="8"
+                fill="#78C25D"
+                id="rect8"
+                style="stroke:#398637;stroke-opacity:1;stroke-width:3;stroke-dasharray:none" />
+            <path
+                d="M95 408 l10 10 l20 -20"
+                stroke="white"
+                stroke-width="6"
+                fill="none"
+                stroke-linecap="round"
+                id="path8" />
+            <rect
+                x="150"
+                y="395"
+                width="140"
+                height="25"
+                rx="12.5"
+                fill="#56B4E9"
+                id="rect9" />
+            </svg>
+    </div>
+    <h2 style="text-align: center;">Evaluación LOMLOE. Castellano ESO v8.1</h2>
+    <div class="tab-bar">
+        <button id="btnTabAdmin" class="tab-button" onclick="abrirPestana(event, 'TabAdmin')">⚙️ Datos</button>
+        <button id="btnTabAlumnos" class="tab-button" onclick="abrirPestana(event, 'TabAlumnos')">1. Alumnos</button>
+        <button id="btnTabActividades" class="tab-button" onclick="abrirPestana(event, 'TabActividades')">2. Actividades</button>
+        <button id="btnTabRelacion" class="tab-button" onclick="abrirPestana(event, 'TabRelacion')">3. Criterios/Pesos</button>
+        <button id="btnTabCalificar" class="tab-button" onclick="abrirPestana(event, 'TabCalificar')">4. Calificar</button>
+        <button id="btnTabResultados" class="tab-button" onclick="abrirPestana(event, 'TabResultados')">5. Resultados</button>
+    </div>
+
+    <div id="TabAdmin" class="tab-content">
+        <h3>Administración</h3>
+        <div style="background: #e9ecef; padding: 20px; border-radius: 8px;">
+            <button class="btn btn-info" onclick="descargarJSONAvanzado()">💾 Guardar archivo...</button><br><br>
+            <button class="btn btn-warning" onclick="document.getElementById('import_file').click()">Abrir archivo</button>
+            <input type="file" id="import_file" style="display:none" onchange="importarJSON(this)">
+            <br><br><button class="btn btn-danger" onclick="resetearTodo()">Limpiar datos</button>
+        </div>
+    </div>
+
+   <div id="TabAlumnos" class="tab-content">
+       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3>Gestión de Alumnos</h3>
+        <button class="btn btn-info" onclick="document.getElementById('import_moodle_file').click()">📥 Importar Moodle (CSV)</button>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="nuevo_alum_nombre" placeholder="Nombre + Enter" style="padding: 8px; width: 250px;" onkeypress="if(event.key==='Enter') agregarAlumno()">
+            <button class="btn btn-success" onclick="agregarAlumno()">Añadir</button>
+        </div>
+        <input type="file" id="import_moodle_file" style="display:none" accept=".csv" onchange="importarAlumnosMoodle(this)">
+
+        <table>
+            <thead><tr><th>Nombre</th><th style="width:100px">Acción</th></tr></thead>
+            <tbody id="lista_alumnos_tabla"></tbody>
+        </table>
+    </div>
+
+    <div id="TabActividades" class="tab-content">
+       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 id="titulo_editor_act" style="margin: 0;">Nueva Actividad</h3>
+            <button class="btn btn-info" onclick="document.getElementById('import_act_file').click()">📥 Importar Acts.</button>
+        </div>
+        <input type="file" id="import_act_file" style="display:none" accept=".json" onchange="prepararImportacionActividades(this)">
+
+        <div id="modalImport" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+            <div style="background:white; padding:20px; border-radius:8px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto;">
+                <h4>Seleccionar actividades</h4>
+                <div id="lista_import_check"></div>
+                <div style="margin-top:15px; display:flex; gap:10px;">
+                    <button class="btn btn-success" onclick="confirmarImportacion()">Importar seleccionadas</button>
+                    <button class="btn btn-danger" onclick="cerrarModal()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="act_cod" placeholder="Código" style="width:100px; padding: 8px;">
+                <input type="hidden" id="act_old_cod">
+                <select id="act_ev" style="padding: 8px;"><option value="1">1ª Ev</option><option value="2">2ª Ev</option><option value="3">3ª Ev</option></select>
+                <input type="text" id="act_desc" placeholder="Descripción" style="flex-grow: 1; padding: 8px;">
+            </div>
+            <div class="contenedor-ces" id="grid_checks_actividades"></div>
+            <div style="display:flex; gap:10px;">
+                <button id="btn_guardar_act" class="btn btn-success" style="flex-grow: 1;" onclick="guardarActividad()">Guardar</button>
+                <button id="btn_cancelar_edit" class="btn btn-danger" style="display:none;" onclick="cancelarEdicion()">Cancelar</button>
+            </div>
+        </div>
+        <table>
+            <thead><tr><th>Cód</th><th>Ev</th><th>Descripción</th><th>Criterios</th><th style="width:120px">Acción</th></tr></thead>
+            <tbody id="body_actividades"></tbody>
+        </table>
+    </div>
+
+    <div id="TabRelacion" class="tab-content">
+        <h3>Ponderación y Relación</h3>
+        <div id="alerta_pesos"></div>
+        <table>
+            <thead><tr><th>Competencia</th><th>Criterio</th><th style="text-align:left">Actividades</th></tr></thead>
+            <tbody id="cuerpo_relacion"></tbody>
+        </table>
+    </div>
+
+    <div id="TabCalificar" class="tab-content">
+        <h3>Calificar</h3>
+        <select id="select_act_calificar" onchange="mostrarPanelCalificar()" style="padding: 8px; width: 300px;"></select>
+        <div id="area_calificar" style="margin-top: 20px; display: none;">
+            <div style="background: #fff3cd; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                Nota Máxima: <input type="number" id="cal_max" step="0.1" style="width: 70px; text-align: center;" onchange="actualizarNotaMaxAct()">
+            </div>
+            <table id="tabla_calif_alumnos"></table>
+            <button class="btn btn-success" style="width: 100%; margin-top: 15px;" onclick="guardarCalificaciones()">💾 Guardar Notas</button>
+        </div>
+    </div>
+
+    <div id="TabResultados" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3>Matriz de Resultados</h3>
+            <button class="btn btn-info" onclick="exportarResultadosPDF()">📄 Exportar PDF (A4 Horiz)</button>
+        </div>
+        <div style="margin-bottom: 10px;">
+            Filtrar: <input type="checkbox" id="f_ev1" checked onchange="calcularResultados()"> Ev1 | <input type="checkbox" id="f_ev2" checked onchange="calcularResultados()"> Ev2 | <input type="checkbox" id="f_ev3" checked onchange="calcularResultados()"> Ev3
+        </div>
+        <div style="overflow-x: auto;"><table id="tabla_resultados"></table></div>
+    </div>
+
+    <script>
+    /**
+     * @license
+     * Evaluación LOMLOE
+     * Copyright (C) 2024-2026 Juan C. Martínez
+     * Este programa es software libre: usted puede redistribuirlo y/o modificarlo
+     * bajo los términos de la Licencia Pública General Affero de GNU tal como
+     * fue publicada por la Free Software Foundation, ya sea la versión 3 de
+     * la Licencia, o (a su elección) cualquier versión posterior.
+     * Este programa se distribuye con la esperanza de que sea útil, pero SIN
+     * NINGUNA GARANTÍA; sin incluso la garantía implícita de COMERCIALIZACIÓN
+     * o IDONEIDAD PARA UN PROPÓSITO PARTICULAR.
+     * Ver <https://www.gnu.org/licenses/agpl-3.0.html> para más detalles.
+     */
+        // --- CONFIGURACIÓN ---
+        const estructuraCriterios = [
+            { id: 1, max: 5, nombre: "CE1. Multiculturalidad" },
+            { id: 2, max: 3, nombre: "CE2. Compr. Oral" },
+            { id: 3, max: 5, nombre: "CE3. Compr. Escrita" },
+            { id: 4, max: 4, nombre: "CE4. Expr. Oral" },
+            { id: 5, max: 4, nombre: "CE5. Expr. Escrita" },
+            { id: 6, max: 4, nombre: "CE6. Interacción" },
+            { id: 7, max: 3, nombre: "CE7. Mediación" },
+            { id: 8, max: 3, nombre: "CE8. Lectura" },
+            { id: 9, max: 6, nombre: "CE9. Educ. Literaria" }
+        ];
+
+		const descriptoresCriterios = {
+			// 1. MULTILINGÜISMO E INTERCULTURALIDAD
+			"CR1.1": "Valora las lenguas de España y sus variedades.",
+			"CR1.2": "Muestra interés por el uso del valenciano.",
+			"CR1.3": "Muestra respeto por las variedades lingüísticas.",
+			"CR1.4": "Identifica prejuicios y estereotipos lingüísticos.",
+			"CR1.5": "Reflexiona sobre el funcionamiento de las lenguas partiendo de su comparación.",
+
+			// 2. COMPRENSIÓN ORAL
+			"CR2.1": "Comprender e interpretar el sentido global y la intención de textos orales y multimodales sencillos.",
+			"CR2.2": "Identifica las ideas principales y secundarias de textos orales.",
+			"CR2.3": "Extrae información de textos orales, incluidos elementos no verbales.",
+
+			// 3. COMPRENSIÓN ESCRITA
+			"CR3.1": "Lee, valora e interpreta textos escritos.",
+			"CR3.2": "Distingue ideas principales y secundarias de textos escritos. Valora la intención del emisor.",
+			"CR3.3": "Identifica tipologías textuales y géneros.",
+			"CR3.4": "Integrar y contrasta información de diversas fuentes.",
+			"CR3.5": "Aplica estrategias variadas de búsqueda y contraste para ampliar conocimientos.",
+
+			// 4. EXPRESIÓN ORAL
+			"CR4.1": "Produce textos orales adecuados aportando su propio punto de vista.",
+			"CR4.2": "Produce textos orales con entonación adecuada y pronunciación correcta.",
+			"CR4.3": "Utiliza el registro estándar, lenguaje no discriminatorio y vocabulario preciso.",
+			"CR4.4": "Comparte oralmente los resultados de la información obtenida de diversas fuentes.",
+
+			// 5. EXPRESIÓN ESCRITA
+			"CR5.1": "Redactar textos escritos y multimodales coherentes, ajustados a las convenciones del género.",
+			"CR5.2": "Usa lenguaje no discriminatorio y detecta usos manipuladores.",
+			"CR5.3": "Utiliza sus conocimientos teóricos en la redacción de textos.",
+			"CR5.4": "Planifica, revisa y mejora los propios textos a partir de pautas de corrección.",
+
+			// 6. Interacción
+			"CR6.1": "Interactúa oralmente y aplica la cortesía lingüística en sus interacciones.",
+			"CR6.2": "Identifica usos discriminatorios y manipuladores del lenguaje.",
+			"CR6.3": "Utiliza estrategias de gestión dialogada de conflictos.",
+			"CR6.4": "Interactúa por escrito síncrona y asíncronamente con vocabulario preciso y no discriminatorio.",
+
+			// 7. MEDIACIÓN
+			"CR7.1": "Muestra interés en participar en la resolución de problemas de comprensión.",
+			"CR7.2": "Explica conceptos combinando su repertorio lingüístico.",
+			"CR7.3": "Aplica estrategias de adaptación para facilitar la comprensión de su mensaje.",
+
+			// 8. LECTURA AUTÓNOMA
+			"CR8.1": "Lee obras ajustadas a sus gustos e intereses.",
+			"CR8.2": "Deja constancia de su itinerario lector.",
+			"CR8.3": "Comparte sus experiencias de lectura.",
+
+			// 9. LITERATURA
+			"CR9.1": "Lee obras literarias con progresiva autonomía.",
+			"CR9.2": "Interpreta la información de los textos literarios.",
+			"CR9.3": "Relaciona los textos leídos con otros textos o manifestaciones artísticas.",
+			"CR9.4": "Expresa su opicnión acerca de obras literarias.",
+			"CR9.5": "Crea textos literarios sencillos.",
+			"CR9.6": "Participa en manifestaciones literarias o representaciones teatrales."
+		};
+
+        let bd = { alumnos: [], actividades: [], calificaciones: [], pesos: { ce: {}, cr: {} } };
+
+        window.onload = function() {
+            let datos = localStorage.getItem("db_lomloe_v6");
+            if (datos) bd = JSON.parse(datos);
+            inicializarPesos();
+            refrescarTodo();
+            if (bd.alumnos.length > 0) abrirPestana(null, 'TabAlumnos');
+            else abrirPestana(null, 'TabAdmin');
+        };
+
+        // --- ALUMNOS  ---
+        function agregarAlumno() {
+            let n = document.getElementById('nuevo_alum_nombre').value.trim();
+            if(n) {
+                bd.alumnos.push(n);
+                bd.alumnos.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+                guardarBD();
+                renderAlumnos();
+            }
+            document.getElementById('nuevo_alum_nombre').value = "";
+        }
+
+        function importarAlumnosMoodle(input) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const contenido = e.target.result;
+                const lineas = contenido.split(/\r?\n/);
+                let alumnosNuevos = 0;
+
+                // 1. Detectar delimitador (coma o punto y coma)
+                const primeraLinea = lineas[0];
+                const delimitador = primeraLinea.includes(';') ? ';' : ',';
+
+                // Empezamos en la línea 1 para saltar la cabecera
+                for (let i = 1; i < lineas.length; i++) {
+                    if (!lineas[i].trim()) continue;
+
+                    // Dividir por el delimitador detectado respetando comillas
+                    const campos = lineas[i].split(delimitador).map(c => c.replace(/^"|"$/g, '').trim());
+
+                    // Estructura Moodle: Nombre(0), Apellidos(1), ID(2), Email(3)
+                    const nombre = campos[0];
+                    const apellidos = campos[1];
+                    const email = campos[3];
+
+                    // 2. Validar que no sea el profesor (dominio edu.gva.es)
+                    if (email && email.toLowerCase().endsWith('edu.gva.es')) continue;
+
+                    // 3. Formatear como "Apellidos, Nombre"
+                    if (nombre && apellidos) {
+                        const nombreFormateado = `${apellidos}, ${nombre}`;
+
+                        // 4. Evitar duplicados
+                        if (!bd.alumnos.includes(nombreFormateado)) {
+                            bd.alumnos.push(nombreFormateado);
+                            alumnosNuevos++;
+                        }
+                    }
+                }
+
+                if (alumnosNuevos > 0) {
+                    // Ordenar alfabéticamente
+                    bd.alumnos.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+                    guardarBD();
+                    renderAlumnos();
+                    alert(`Se han importado ${alumnosNuevos} alumnos correctamente.`);
+                } else {
+                    alert("No se encontraron alumnos nuevos.");
+                }
+            };
+            reader.readAsText(input.files[0]);
+            input.value = '';
+        }
+
+        function renderAlumnos() {
+            document.getElementById('lista_alumnos_tabla').innerHTML = bd.alumnos.map((a, idx) => `<tr><td style="text-align:left">${a}</td><td><button class="btn btn-danger" onclick="borrarAlumno(${idx})">🗑</button></td></tr>`).join("");
+        }
+
+        // --- RELACIÓN / PESOS ---
+        function renderTablaRelacion() {
+            const tbody = document.getElementById('cuerpo_relacion');
+            tbody.innerHTML = "";
+            let sumaTotalCriterios = 0;
+            estructuraCriterios.forEach(g => {
+                const ceKey = "CE" + g.id;
+
+                let pesoCalculadoCE = 0;
+                for (let i = 1; i <= g.max; i++) {
+                    pesoCalculadoCE += parseFloat(bd.pesos.cr[`CR${g.id}.${i}`] || 0);
+                }
+                bd.pesos.ce[ceKey] = pesoCalculadoCE.toFixed(1);
+                sumaTotalCriterios += pesoCalculadoCE;
+
+                for (let i = 1; i <= g.max; i++) {
+                    const crKey = `CR${g.id}.${i}`;
+                    const acts = bd.actividades
+                        .filter(a => a.criterios.includes(crKey))
+                        .map(a => `<span class="badge-ev" title="Ev. ${a.ev} - ${a.desc}" onclick="editarAct('${a.cod}')">${a.cod}</span>`)
+                        .join("");
+
+                    const tr = document.createElement('tr');
+                    let tdCE = i === 1 ? `<td rowspan="${g.max}" style="vertical-align:top;"><strong>${g.nombre}</strong><br>Peso auto: <span style="color:#007bff; font-weight:bold;">${bd.pesos.ce[ceKey]}%</span></td>` : "";
+
+                    tr.innerHTML = `${tdCE}<td style="text-align:left; cursor:help;" title="${descriptoresCriterios[crKey]}"><strong>${g.id}.${i}</strong>: <input type="number" step="0.1" class="input-peso" style="width:50px" value="${bd.pesos.cr[crKey]}" onchange="updatePeso('cr','${crKey}',this.value)">%</td><td style="text-align:left">${acts || '-'}</td>`;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            const d = Math.abs(sumaTotalCriterios - 100);
+            const a = document.getElementById('alerta_pesos');
+            a.className = "valid-box " + (d < 0.1 ? "success" : "error");
+            a.style.display = "flex";
+            a.style.justifyContent = "space-between";
+            a.style.alignItems = "center";
+
+            a.innerHTML = `
+                <span>${d < 0.1 ? "✓ Suma Total Criterios: 100%" : `⚠ Suma Total Criterios: ${sumaTotalCriterios.toFixed(1)}% (Debe ser 100%)`}</span>
+                <button class="btn btn-warning" style="color:black" onclick="document.getElementById('import_pesos_file').click()">⚖️ Importar Pesos</button>
+                <input type="file" id="import_pesos_file" style="display:none" accept=".json" onchange="importarSoloPesos(this)">
+            `;
+        }
+
+        function importarSoloPesos(input) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    // Verificamos que el archivo contenga la estructura de pesos
+                    if (data.pesos && data.pesos.cr) {
+                        if (confirm("¿Deseas sobrescribir los pesos actuales con los de este archivo?")) {
+                            bd.pesos = data.pesos;
+                            guardarBD();
+                            renderTablaRelacion();
+                            alert("Pesos importados correctamente.");
+                        }
+                    } else {
+                        alert("El archivo no contiene una configuración de pesos válida.");
+                    }
+                } catch (err) {
+                    alert("Error al procesar el archivo JSON.");
+                }
+            };
+            reader.readAsText(input.files[0]);
+            input.value = ''; // Limpiamos el input
+        }
+
+        // --- RESULTADOS (LOGICA DINÁMICA) ---
+        function calcularResultados() {
+            const evs = [];
+            if (document.getElementById('f_ev1').checked) evs.push("1");
+            if (document.getElementById('f_ev2').checked) evs.push("2");
+            if (document.getElementById('f_ev3').checked) evs.push("3");
+
+            let ptAlum = {}, ptMax = {};
+            bd.alumnos.forEach(a => { ptAlum[a] = {}; });
+            estructuraCriterios.forEach(g => { for(let i=1; i<=g.max; i++) ptMax[`CR${g.id}.${i}`] = 0; });
+
+            bd.actividades.forEach(act => {
+                if (evs.includes(act.ev)) {
+                    act.criterios.forEach(cr => ptMax[cr] += (parseFloat(act.max_nota) || 0));
+                }
+            });
+
+            bd.calificaciones.forEach(c => {
+                let act = bd.actividades.find(a => a.cod === c.cod_act);
+                if (act && evs.includes(act.ev)) {
+                    act.criterios.forEach(cr => ptAlum[c.nombre][cr] = (ptAlum[c.nombre][cr] || 0) + c.puntuac);
+                }
+            });
+
+            let h = `<thead><tr><th rowspan="2" class="col-fija">Alumno</th>`;
+            estructuraCriterios.forEach(g => { h += `<th colspan="${g.max + 1}">${g.nombre}</th>`; });
+            h += `<th rowspan="2">NOTA FINAL</th></tr><tr>`;
+            estructuraCriterios.forEach(g => { for (let i = 1; i <= g.max; i++) h += `<th style="font-size:10px">${g.id}.${i}</th>`; h += `<th style="font-size:11px">TOT</th>`; });
+            h += `</tr></thead><tbody>`;
+
+            bd.alumnos.forEach(a => {
+                h += `<tr><td class="col-fija">${a}</td>`;
+                let sumaPondTotal = 0, sumaPesosCE_Efectivos = 0;
+                estructuraCriterios.forEach(g => {
+                    let sPondCE = 0, sPesosCR_Existentes = 0;
+                    for (let i = 1; i <= g.max; i++) {
+                        let k = `CR${g.id}.${i}`;
+                        if (ptMax[k] > 0) {
+                            let n10 = (ptAlum[a][k] || 0) / ptMax[k] * 10;
+                            let pOriginal = parseFloat(bd.pesos.cr[k] || 0);
+                            sPondCE += (n10 * pOriginal); sPesosCR_Existentes += pOriginal;
+                        }
+                    }
+                    let nCE = sPesosCR_Existentes > 0 ? (sPondCE / sPesosCR_Existentes) : null;
+                    for (let i = 1; i <= g.max; i++) {
+                        let k = `CR${g.id}.${i}`, n10 = ptMax[k] > 0 ? (ptAlum[a][k] || 0) / ptMax[k] * 10 : null;
+                        h += `<td style="color:${n10!==null?getColor(n10):'#ccc'}; font-size:11px;">${n10!==null?n10.toFixed(1):'-'}</td>`;
+                    }
+                    if (nCE !== null) {
+                        let pesoCE = parseFloat(bd.pesos.ce["CE"+g.id] || 0);
+                        sumaPondTotal += (nCE * (pesoCE / 100)); sumaPesosCE_Efectivos += pesoCE;
+                        h += `<td style="color:${getColor(nCE)}; font-weight:bold;">${nCE.toFixed(2)}</td>`;
+                    } else h += `<td style="color:#ccc;">-</td>`;
+                });
+                let finalCurso = sumaPesosCE_Efectivos > 0 ? (sumaPondTotal / (sumaPesosCE_Efectivos / 100)) : 0;
+                h += `<td style="color:${getColor(finalCurso)}; font-weight:bold; background:#eee;">${finalCurso.toFixed(2)}</td></tr>`;
+            });
+            document.getElementById('tabla_resultados').innerHTML = h + "</tbody>";
+        }
+
+        // --- EXPORTAR PDF ---
+        async function exportarResultadosPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const grupo = prompt("Identificador del Grupo (ej. 2BACH-A):", "Grupo") || "Evaluación";
+            doc.setFontSize(16);
+            doc.text(`Matriz de Calificaciones LOMLOE - ${grupo}`, 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 22);
+            doc.autoTable({
+                html: '#tabla_resultados',
+                startY: 25,
+                theme: 'grid',
+                styles: { fontSize: 6, cellPadding: 1, halign: 'center' },
+                headStyles: { fillColor: [0, 123, 255], textColor: 255, fontSize: 5 },
+                columnStyles: { 0: { halign: 'left', fontStyle: 'bold', fontSize: 7 } },
+                didParseCell: function(data) {
+                    if (data.section === 'body' && data.column.index > 0) {
+                        const val = parseFloat(data.cell.raw.innerText);
+                        if (!isNaN(val)) {
+                            if (val < 5) data.cell.styles.textColor = [220, 53, 69];
+                            else if (val >= 9) data.cell.styles.textColor = [0, 123, 255];
+                        }
+                    }
+                }
+            });
+            doc.save(`Resultados_${grupo.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        // --- SISTEMA ARCHIVOS ---
+        async function descargarJSONAvanzado() {
+            const grupo = prompt("Grupo:", "1ESOB"); if (!grupo) return;
+            const hoy = new Date().toISOString().split('T')[0];
+            const nombre = `LOMLOE_${grupo.replace(/\s+/g, '_')}_${hoy}.json`;
+            const contenido = JSON.stringify(bd, null, 2);
+            if ('showSaveFilePicker' in window) {
+                try {
+                    const h = await window.showSaveFilePicker({ suggestedName: nombre, types: [{ accept: { 'application/json': ['.json'] } }] });
+                    const w = await h.createWritable(); await w.write(contenido); await w.close();
+                }
+                catch (e) { if (e.name !== 'AbortError') fallback(contenido, nombre); }
+            }
+            else fallback(contenido, nombre);
+        }
+
+        function fallback(c, n) {
+            const b = new Blob([c], { type: 'application/json' });
+            const u = URL.createObjectURL(b);
+            const a = document.createElement('a');
+            a.href = u;
+            a.download = n;
+            a.click();
+        }
+
+        // --- GENERAL ---
+        function updatePeso(t, k, v) {
+            if(t==='ce') bd.pesos.ce[k]=v;
+            else bd.pesos.cr[k]=v;
+            guardarBD();
+            renderTablaRelacion();
+        }
+
+        function inicializarPesos() {
+            if (!bd.pesos) bd.pesos = { ce: {}, cr: {} };
+            estructuraCriterios.forEach(g => {
+                let ceKey = "CE" + g.id;
+                const pesoBaseCE = 100 / estructuraCriterios.length;
+                for (let i = 1; i <= g.max; i++) {
+                    let crKey = `CR${g.id}.${i}`;
+                    if (bd.pesos.cr[crKey] === undefined) bd.pesos.cr[crKey] = (pesoBaseCE / g.max).toFixed(1);
+                }
+            });
+            guardarBD();
+        }
+
+        function abrirPestana(evt, n) {
+            let content = document.getElementsByClassName("tab-content"), tabs = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < content.length; i++) content[i].style.display = "none";
+            for (let i = 0; i < tabs.length; i++) tabs[i].className = tabs[i].className.replace(" active", "");
+            document.getElementById(n).style.display = "block";
+            if(evt) evt.currentTarget.className += " active";
+            else {
+                let bId = "btn" + n;
+                if(document.getElementById(bId)) document.getElementById(bId).className += " active";
+            }
+            if(n === 'TabResultados') calcularResultados();
+            if(n === 'TabRelacion') renderTablaRelacion();
+        }
+
+        function renderChecksActividades() {
+            let h = "";
+            estructuraCriterios.forEach(g => {
+                h += `<div class="card-ce"><h5>${g.nombre}</h5><div class="grid-checks">`;
+                for(let i=1; i<=g.max; i++) {
+                    let k = `CR${g.id}.${i}`;
+                    h += `<label class="check-item" title="${descriptoresCriterios[k]}"><input type="checkbox" class="chk-cr" value="${k}"> ${g.id}.${i}</label>`;
+                }
+                h += `</div></div>`;
+            });
+            document.getElementById('grid_checks_actividades').innerHTML = h;
+        }
+
+        function guardarActividad() {
+            let cod = document.getElementById('act_cod').value.trim(), oldCod = document.getElementById('act_old_cod').value;
+            let crs = Array.from(document.querySelectorAll('.chk-cr:checked')).map(el => el.value);
+            if(!cod || crs.length === 0) return alert("Faltan datos");
+            if(oldCod) {
+                let act = bd.actividades.find(a => a.cod === oldCod);
+                if(act) {
+                    act.cod = cod; act.ev = document.getElementById('act_ev').value; act.desc = document.getElementById('act_desc').value; act.criterios = crs;
+                    if(oldCod !== cod) bd.calificaciones.forEach(c => { if(c.cod_act === oldCod) c.cod_act = cod; });
+                }
+            } else {
+                if(bd.actividades.some(a => a.cod === cod)) return alert("Código duplicado");
+                bd.actividades.push({ cod: cod, ev: document.getElementById('act_ev').value, desc: document.getElementById('act_desc').value, criterios: crs, max_nota: 0 });
+            }
+            cancelarEdicion();
+            guardarBD();
+            refrescarTodo();
+        }
+
+        function editarAct(cod) {
+            let act = bd.actividades.find(a => a.cod === cod); if(!act) return;
+            document.getElementById('act_cod').value = act.cod;
+            document.getElementById('act_old_cod').value = act.cod;
+            document.getElementById('act_ev').value = act.ev; document.getElementById('act_desc').value = act.desc;
+            document.querySelectorAll('.chk-cr').forEach(chk => chk.checked = act.criterios.includes(chk.value));
+            document.getElementById('titulo_editor_act').innerText = "Editando: " + cod;
+            document.getElementById('btn_guardar_act').innerText = "Actualizar";
+            document.getElementById('btn_cancelar_edit').style.display = "inline-block";
+            abrirPestana(null, 'TabActividades');
+        }
+
+        function cancelarEdicion() {
+            document.getElementById('act_cod').value = "";
+            document.getElementById('act_old_cod').value = "";
+            document.getElementById('act_desc').value = ""; document.querySelectorAll('.chk-cr').forEach(chk => chk.checked = false);
+            document.getElementById('titulo_editor_act').innerText = "Nueva Actividad";
+            document.getElementById('btn_guardar_act').innerText = "Guardar";
+            document.getElementById('btn_cancelar_edit').style.display = "none";
+        }
+
+        function renderTablaActividades() {
+            document.getElementById('body_actividades').innerHTML = bd.actividades.map(a => {
+                const critHtml = a.criterios.map(cr => `<span class="span-crit-tabla" title="${descriptoresCriterios[cr] || ''}">${cr}</span>`).join(", ");
+                return `<tr>
+                    <td>${a.cod}</td>
+                    <td>${a.ev}</td>
+                    <td style="text-align:left">${a.desc}</td>
+                    <td>${critHtml}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn btn-info" title="Duplicar" onclick="duplicarActividad('${a.cod}')">📑</button>
+                        <button class="btn btn-warning" title="Editar" onclick="editarAct('${a.cod}')">✏️</button>
+                        <button class="btn btn-danger" title="Borrar" onclick="borrarAct('${a.cod}')">🗑</button>
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        function borrarAct(c) {
+            if(confirm("¿Borrar?")) {
+                bd.actividades = bd.actividades.filter(a => a.cod !== c);
+                bd.calificaciones = bd.calificaciones.filter(cal => cal.cod_act !== c); guardarBD();
+                refrescarTodo(); }
+        }
+
+        function duplicarActividad(codOriginal) {
+            // 1. Encontrar la actividad original
+            const original = bd.actividades.find(a => a.cod === codOriginal);
+            if (!original) return;
+
+            // 2. Crear un nuevo código único
+            let nuevoCod = original.cod + "_copy";
+            let contador = 1;
+            while (bd.actividades.some(a => a.cod === nuevoCod)) {
+                nuevoCod = original.cod + "_copy" + contador;
+                contador++;
+            }
+
+            // 3. Crear el objeto clonado (usando Spread para no referenciar al original)
+            const copia = {
+                ...original,
+                cod: nuevoCod,
+                desc: original.desc + " (Copia)",
+                max_nota: "0",
+                criterios: [...original.criterios] // Clonar el array de criterios
+            };
+
+            // 4. Guardar y refrescar
+            bd.actividades.push(copia);
+            guardarBD();
+            refrescarTodo();
+
+            // Opcional: Avisar al usuario
+            alert("Actividad duplicada como: " + nuevoCod);
+        }
+        let actsTemporales = []; // Almacena las actividades del JSON cargado
+
+        function cerrarModal() {
+            document.getElementById('modalImport').style.display = 'none';
+        }
+
+        function prepararImportacionActividades(input) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    // Validamos que el JSON tenga el formato correcto de la BD
+                    if (!data.actividades) {
+                        alert("El archivo no contiene una estructura de actividades válida.");
+                        return;
+                    }
+                    actsTemporales = data.actividades;
+                    mostrarSelectorActividades();
+                } catch (err) {
+                    alert("Error al leer el archivo JSON.");
+                }
+            };
+            reader.readAsText(input.files[0]);
+            input.value = ''; // Reset para permitir cargar el mismo archivo dos veces
+        }
+
+        function mostrarSelectorActividades() {
+            const contenedor = document.getElementById('lista_import_check');
+            contenedor.innerHTML = "";
+
+            actsTemporales.forEach((act, index) => {
+                // Comprobar si ya existe una actividad con ese código en la BD actual
+                const existe = bd.actividades.some(a => a.cod === act.cod);
+
+                const div = document.createElement('div');
+                div.style.padding = "5px";
+                div.style.borderBottom = "1px solid #eee";
+                div.innerHTML = `
+                    <label style="display:flex; align-items:center; ${existe ? 'color:#999; cursor:not-allowed;' : 'cursor:pointer;'}">
+                        <input type="checkbox" value="${index}" ${existe ? 'disabled' : ''} style="margin-right:10px;">
+                        <div>
+                            <strong>${act.cod}</strong> - ${act.desc} <br>
+                            <small>${act.criterios.join(", ")} ${existe ? '(Ya existe)' : ''}</small>
+                        </div>
+                    </label>
+                `;
+                contenedor.appendChild(div);
+            });
+
+            document.getElementById('modalImport').style.display = 'flex';
+        }
+
+        function confirmarImportacion() {
+            const seleccionados = Array.from(document.querySelectorAll('#lista_import_check input:checked')).map(i => parseInt(i.value));
+
+            if (seleccionados.length === 0) {
+                alert("No has seleccionado ninguna actividad nueva.");
+                return;
+            }
+
+            seleccionados.forEach(idx => {
+                const nuevaAct = actsTemporales[idx];
+
+                bd.actividades.push({
+                    cod: nuevaAct.cod,
+                    ev: nuevaAct.ev,
+                    desc: nuevaAct.desc,
+                    criterios: [...nuevaAct.criterios],
+                    // Forzamos max_nota a 0 o vacío para que no compute en la media
+                    max_nota: 0
+                });
+            });
+
+            guardarBD();
+            refrescarTodo();
+            cerrarModal();
+            alert(`Se han importado ${seleccionados.length} actividades. Recuerda asignarles una "Nota Máxima" cuando vayas a calificarlas para que computen.`);
+        }
+
+        function renderSelectCalificar() {
+            document.getElementById('select_act_calificar').innerHTML = '<option value=\"\">-- Selecciona --</option>' + bd.actividades.map(a => `<option value="${a.cod}">${a.cod} - ${a.desc}</option>`).join("");
+        }
+
+        // --- FUNCIONES CALIFICAR (INTEGRADAS) ---
+
+        function mostrarPanelCalificar() {
+            let c = document.getElementById('select_act_calificar').value;
+            if(!c) return;
+
+            document.getElementById('area_calificar').style.display = "block";
+            let act = bd.actividades.find(a => a.cod === c);
+            document.getElementById('cal_max').value = act.max_nota;
+
+            document.getElementById('tabla_calif_alumnos').innerHTML = bd.alumnos.map(al => {
+                let cal = bd.calificaciones.find(x => x.nombre === al && x.cod_act === c);
+                let valor = cal ? cal.puntuac : '';
+                return `<tr><td style="text-align:left">${al}</td><td><input type="number" step="0.1" id="in_${al}" value="${valor}" style="text-align:center" oninput="validarNotaInput(this)"></td></tr>`;
+            }).join("");
+        }
+
+        function validarNotaInput(input) {
+            const maxNota = parseFloat(document.getElementById('cal_max').value) || 0;
+            const valorActual = parseFloat(input.value);
+            if (!isNaN(valorActual) && valorActual > maxNota) {
+                input.style.backgroundColor = "#f8d7da";
+                input.style.borderColor = "#dc3545";
+                input.style.color = "#721c24";
+            } else {
+                input.style.backgroundColor = "";
+                input.style.borderColor = "";
+                input.style.color = "";
+            }
+        }
+
+        function actualizarNotaMaxAct() {
+            let c = document.getElementById('select_act_calificar').value;
+            if(c) {
+                bd.actividades.find(a => a.cod === c).max_nota = document.getElementById('cal_max').value;
+                guardarBD();
+                document.querySelectorAll('#tabla_calif_alumnos input').forEach(validarNotaInput);
+            }
+        }
+
+        function guardarCalificaciones() {
+            let c = document.getElementById('select_act_calificar').value;
+            if (!c) return;
+            let maxNota = parseFloat(document.getElementById('cal_max').value) || 0;
+            let alumnosConError = [];
+            bd.alumnos.forEach(al => {
+                let v = document.getElementById('in_' + al).value;
+                if (v !== "" && parseFloat(v) > maxNota) { alumnosConError.push(al); }
+            });
+            if (alumnosConError.length > 0) {
+                alert("⚠️ Error: Las notas de los siguientes alumnos superan el máximo (" + maxNota + "):\n\n" + alumnosConError.join(", "));
+                return;
+            }
+            bd.calificaciones = bd.calificaciones.filter(x => x.cod_act !== c);
+            bd.alumnos.forEach(al => {
+                let v = document.getElementById('in_'+al).value;
+                if(v!=="") bd.calificaciones.push({ nombre: al, cod_act: c, puntuac: parseFloat(v) });
+            });
+            guardarBD();
+            alert("✅ Guardado.");
+        }
+
+        function getColor(n) {
+            if (n < 5) return "#dc3545";
+            if (n < 6) return "#fd7e14";
+            if (n < 7) return "#ffc107";
+            if (n < 9) return "#28a745";
+            return "#007bff";
+        }
+
+        function guardarBD() {
+            localStorage.setItem("db_lomloe_v6", JSON.stringify(bd));
+        }
+
+        function borrarAlumno(idx) {
+            if(confirm("¿Borrar?")) { bd.alumnos.splice(idx,1); guardarBD(); refrescarTodo(); }
+        }
+
+        function importarJSON(i) {
+            const r = new FileReader();
+            r.onload = function(e) {
+                bd = JSON.parse(e.target.result);
+                inicializarPesos();
+                refrescarTodo();
+                alert("Cargado.");
+            };
+            r.readAsText(i.files[0]);
+        }
+
+        function resetearTodo() {
+            if(confirm("¿Borrar todo?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function refrescarTodo() {
+            renderAlumnos();
+            renderChecksActividades();
+            renderTablaActividades();
+            renderSelectCalificar();
+        }
+    </script>
+    <!-- Pie -->
+    <footer style="margin-top: 50px; padding: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 12px; color: #666;">
+    <p>
+        <strong>Evaluación LOMLOE v<span id="versionFooter"></span></strong> - Desarrollado por Juan C. Martínez
+        <br>
+        Este software es libre bajo la licencia
+        <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">GNU AGPLv3</a>.
+    </p>
+    <p>
+        En cumplimiento de la licencia, el código fuente está disponible para su inspección y mejora.
+    </p>
+    </footer>
+</body>
+</html>
